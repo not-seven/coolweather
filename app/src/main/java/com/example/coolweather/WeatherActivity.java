@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +35,8 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
+
+    private static final String TAG = "WeatherActivity";
 
     private ImageView bingPicImg;
 
@@ -110,7 +113,7 @@ public class WeatherActivity extends AppCompatActivity {
             mWeatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
         } else {
-            //无缓存时就去服务器查询天气
+            //无缓存时就去服务器查询天气，安装软件后的第一次查询吧
             mWeatherId = getIntent().getStringExtra("weatherId");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(mWeatherId);
@@ -121,6 +124,8 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 requestWeather(mWeatherId);
+                loadBingPic();
+                Log.d(TAG, "onRefresh: 图片刷新了");
             }
         });
 
@@ -173,6 +178,7 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weatherId
      */
     public void requestWeather(final String weatherId) {
+        mWeatherId = weatherId;
         String weatherUrl = "http://guolin.tech/api/weather?cityid="
                 + weatherId + "&key=2f7dc7c8ed5746309a0b2c4e2048cdcc";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
